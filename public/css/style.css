@@ -1,0 +1,107 @@
+/* public/css/style.css */
+
+/* Add your custom styles here */
+html, body {
+    height: 100%; /* Ensure html and body take full height */
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: #ecf0f1; /* Lighter background for the whole page */
+    color: #34495e; /* Darker text color */
+}
+
+main.container {
+    flex-grow: 1; /* Allow main content to grow and push footer down */
+}
+
+/* Header (Navbar) Styling */
+.navbar {
+    background-color: #3498db !important; /* Primary blue for header */
+    color: white !important;
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link,
+.navbar .dropdown-item {
+    color: white !important;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+    color: #ecf0f1 !important; /* Lighter hover color */
+}
+
+/* Footer Styling */
+footer {
+    background-color: #34495e !important; /* Darker background for footer */
+    color: white !important;
+}
+
+footer p, footer a {
+    color: white !important;
+}
+
+/* Dashboard Cards - Redefine gradients for more vibrancy */
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #3498db, #2980b9) !important;
+}
+.bg-gradient-success {
+    background: linear-gradient(45deg, #2ecc71, #27ae60) !important;
+}
+.bg-gradient-info {
+    background: linear-gradient(45deg, #3498db, #2980b9) !important; /* Using primary blue for info */
+}
+.bg-gradient-warning {
+    background: linear-gradient(45deg, #f1c40f, #f39c12) !important; /* Brighter yellow */
+}
+.bg-gradient-danger {
+    background: linear-gradient(45deg, #e74c3c, #c0392b) !important; /* Brighter red */
+}
+
+/* Other general elements */
+.btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+.btn-secondary {
+    background-color: #34495e;
+    border-color: #34495e;
+}
+.btn-secondary:hover {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+}
+
+/* Existing styles for responsive canvas wrapper */
+.canvas-wrapper {
+    overflow: auto; /* This is the key: enable scrollbars if content overflows */
+    border: 1px solid #dee2e6;
+    max-height: 75vh; /* Set a max height relative to the viewport height */
+}
+
+/* Animation Definitions */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animated-fadeInUp {
+    animation-name: fadeInUp;
+    animation-duration: 0.8s;
+    animation-fill-mode: both;
+}
+
+/* Old .footer styles removed as they are not used and conflict with sticky footer */
