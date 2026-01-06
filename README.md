@@ -51,5 +51,3 @@ This project is a web application designed for managing and generating QSL cards
 ## Developer
 -   **Name:** Abdullah Al Fahad
 -   **Email:** fahadmieaji@gmail.com
-## License
-*   *(Please specify the desired open-source license, e.g., MIT, GPL, Apache 2.0, or proprietary)*
