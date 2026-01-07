@@ -21,9 +21,14 @@ if (isset($_SESSION['user_id'])) {
 $pdo = get_db_connection();
 
 // Fetch total number of QSOs stored in the database
-$stmt_total_qso_public = $pdo->prepare('SELECT COUNT(*) FROM logs');
-$stmt_total_qso_public->execute();
-$total_qso_public = $stmt_total_qso_public->fetchColumn();
+try {
+    $stmt_total_qso_public = $pdo->prepare('SELECT COUNT(*) FROM logs');
+    $stmt_total_qso_public->execute();
+    $total_qso_public = $stmt_total_qso_public->fetchColumn();
+} catch (PDOException $e) {
+    // If the table doesn't exist or there's an error, default to 0
+    $total_qso_public = 0;
+}
 
 
 // For logged-out users, show a welcome page

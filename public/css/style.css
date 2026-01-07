@@ -25,7 +25,7 @@ main.container {
 
 .navbar .navbar-brand,
 .navbar .nav-link,
-.navbar .dropdown-item {
+.navbar .dropdown-toggle {
     color: white !important;
 }
 

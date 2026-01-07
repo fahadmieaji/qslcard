@@ -188,9 +188,9 @@ include_once ROOT_PATH . '/templates/header.php';
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div>
                                 <h5 class="card-title display-5">
-                                    <?php echo $max_qso_day['qso_count'] ? htmlspecialchars($max_qso_day['qso_count']) : '0'; ?>
+                                    <?php echo !empty($max_qso_day['qso_count']) ? htmlspecialchars($max_qso_day['qso_count']) : '0'; ?>
                                     <small class="text-white-50 d-block d-sm-inline">
-                                        (<?php echo $max_qso_day['qso_date'] ? htmlspecialchars($max_qso_day['qso_date']) : 'N/A'; ?>)
+                                        (<?php echo !empty($max_qso_day['qso_date']) ? htmlspecialchars($max_qso_day['qso_date']) : 'N/A'; ?>)
                                     </small>
                                 </h5>
                                 <p class="card-text text-white-50">Max QSOs in a Day</p>
@@ -203,9 +203,9 @@ include_once ROOT_PATH . '/templates/header.php';
                     <div class="card text-white bg-gradient-primary dashboard-card initial-hidden" style="animation-delay: 0.6s;">                <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="card-title display-5">
-                            <?php echo $max_qso_month['qso_count'] ? htmlspecialchars($max_qso_month['qso_count']) : '0'; ?>
+                            <?php echo !empty($max_qso_month['qso_count']) ? htmlspecialchars($max_qso_month['qso_count']) : '0'; ?>
                             <small class="text-white-50 d-block d-sm-inline">
-                                (<?php echo $max_qso_month['qso_month'] ? htmlspecialchars($max_qso_month['qso_month']) : 'N/A'; ?>)
+                                (<?php echo !empty($max_qso_month['qso_month']) ? htmlspecialchars($max_qso_month['qso_month']) : 'N/A'; ?>)
                             </small>
                         </h5>
                         <p class="card-text text-white-50">Max QSOs in a Month</p>

@@ -7,7 +7,11 @@ if (session_status() === PHP_SESSION_NONE) {
     // For simplicity in this context, we just use a basic start.
     session_start();
 }
-$settings = get_settings();
+if (defined('INSTALLING')) {
+    $settings = ['site_name' => 'QSL Card Manager'];
+} else {
+    $settings = get_settings();
+}
 $site_name = $settings['site_name'] ?? 'QSL Card Manager';
 ?><!DOCTYPE html>
 <html lang="en">
@@ -15,8 +19,8 @@ $site_name = $settings['site_name'] ?? 'QSL Card Manager';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' . htmlspecialchars($site_name) : htmlspecialchars($site_name); ?></title>
-    <link rel="icon" href="https://www.qrz.com/favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="https://www.qrz.com/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="<?php echo ROOT_URL; ?>/public/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="<?php echo ROOT_URL; ?>/public/favicon.ico" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
