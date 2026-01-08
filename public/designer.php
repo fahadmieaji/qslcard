@@ -41,7 +41,7 @@ include_once ROOT_PATH . '/templates/header.php';
 
 <div class="container-fluid">
     <div class="row">
-        <!-- Control Panel -->
+        <!-- Left Control Panel -->
         <div class="col-lg-3">
             <div class="card shadow-sm mb-3">
                 <div class="card-header bg-dark text-white">
@@ -87,7 +87,22 @@ include_once ROOT_PATH . '/templates/header.php';
                     </div>
                 </div>
             </div>
+        </div>
 
+        <!-- Canvas Area -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p>Upload a background image to begin. The canvas will resize to match your image dimensions.</p>
+                    <div class="canvas-wrapper">
+                        <canvas id="qsl-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Control Panel for Text Editing -->
+        <div class="col-lg-3">
             <div class="card shadow-sm mb-3" id="text-controls">
                 <div class="card-header">
                     <h5 class="mb-0">Edit Text</h5>
@@ -101,19 +116,14 @@ include_once ROOT_PATH . '/templates/header.php';
                         <label for="font-color" class="form-label">Color</label>
                         <input type="color" id="font-color" class="form-control form-control-color" value="#000000">
                     </div>
-                     <button id="remove-object" class="btn btn-danger w-100">Remove Field</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Canvas Area -->
-        <div class="col-lg-9">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <p>Upload a background image to begin. The canvas will resize to match your image dimensions.</p>
-                    <div class="canvas-wrapper">
-                        <canvas id="qsl-canvas"></canvas>
+                    <div class="mb-3">
+                        <label class="form-label">Style</label>
+                        <div class="btn-group w-100">
+                            <button type="button" class="btn btn-outline-secondary" id="font-bold"><b>B</b></button>
+                            <button type="button" class="btn btn-outline-secondary" id="font-italic"><i>I</i></button>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>

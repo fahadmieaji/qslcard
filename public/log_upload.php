@@ -34,16 +34,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $total_records = count($records);
                 foreach ($records as $record) {
-                    if (empty($record['CALL']) || empty($record['QSO_DATE']) || empty($record['TIME_ON'])) {
+                    $call = $record['OPERATOR'] ?? $record['CALL'] ?? null;
+                    if (empty($call) || empty($record['QSO_DATE']) || empty($record['TIME_ON'])) {
                         continue;
                     }
                     
+                    $band = $record['BAND'] ?? null;
+                    if (empty($band) && !empty($record['FREQ'])) {
+                        $band = get_band_from_frequency($record['FREQ']);
+                    }
+
                     $stmt->execute([
                         $_SESSION['user_id'],
                         date('Y-m-d', strtotime($record['QSO_DATE'])),
                         date('H:i:s', strtotime($record['TIME_ON'])),
-                        $record['CALL'] ?? null,
-                        $record['BAND'] ?? null,
+                        $call,
+                        $band,
                         $record['FREQ'] ?? null,
                         $record['MODE'] ?? null,
                         $record['RST_SENT'] ?? null,

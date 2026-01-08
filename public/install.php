@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     switch ($action) {
         case 'install':
             // Initial validation
-            if (version_compare(PHP_VERSION, '8.0.0', '<') || !extension_loaded('pdo_mysql')) {
+            if (version_compare(PHP_VERSION, '8.0.0', '<') || !extension_loaded('pdo_mysql') || !extension_loaded('gd')) {
                 send_json_response('error', 'System requirements not met.', 0, '', 'PHP version or extensions are not correct.');
             }
             if (empty($db_host) || empty($db_name) || empty($db_user) || empty($admin_username) || empty($admin_password) || empty($admin_callsign)) {
@@ -164,9 +164,16 @@ include_once ROOT_PATH . '/templates/header.php';
                                 <i class="bi bi-<?php echo $pdo_ok ? 'check-circle' : 'x-circle'; ?>"></i> <?php echo $pdo_ok ? 'Enabled' : 'Disabled'; ?>
                             </span>
                         </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            GD Library
+                            <?php $gd_ok = extension_loaded('gd'); ?>
+                            <span class="badge bg-<?php echo $gd_ok ? 'success' : 'danger'; ?>">
+                                <i class="bi bi-<?php echo $gd_ok ? 'check-circle' : 'x-circle'; ?>"></i> <?php echo $gd_ok ? 'Enabled' : 'Disabled'; ?>
+                            </span>
+                        </li>
                     </ul>
-                    <button class="btn btn-primary next-step" <?php if (!$php_ok || !$pdo_ok) echo 'disabled'; ?>>Next</button>
-                    <?php if (!$php_ok || !$pdo_ok): ?>
+                    <button class="btn btn-primary next-step" <?php if (!$php_ok || !$pdo_ok || !$gd_ok) echo 'disabled'; ?>>Next</button>
+                    <?php if (!$php_ok || !$pdo_ok || !$gd_ok): ?>
                         <p class="text-danger mt-2">Please fix the issues above to proceed.</p>
                     <?php endif; ?>
                 </div>

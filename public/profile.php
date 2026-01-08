@@ -18,6 +18,7 @@ $user_details = $stmt_user_details->fetch(PDO::FETCH_ASSOC);
 
 $current_username = htmlspecialchars($user_details['username']);
 $current_email = htmlspecialchars($user_details['email']);
+$current_callsign = htmlspecialchars($user_details['callsign'] ?? '');
 $current_profile_picture = htmlspecialchars($user_details['profile_picture_url'] ?? '');
 $current_name = htmlspecialchars($user_details['name'] ?? '');
 $current_mobile = htmlspecialchars($user_details['mobile'] ?? '');
@@ -53,6 +54,10 @@ include_once ROOT_PATH . '/templates/header.php';
                         <div class="mb-3">
                             <label for="email" class="form-label">Email address</label>
                             <input type="email" class="form-control" id="email" name="email" value="<?php echo $current_email; ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="callsign" class="form-label">Callsign</label>
+                            <input type="text" class="form-control" id="callsign" name="callsign" value="<?php echo $current_callsign; ?>" readonly>
                         </div>
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>

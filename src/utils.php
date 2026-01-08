@@ -134,7 +134,21 @@ function get_settings() {
 // Given that secure_session_start() is often called before other operations,
 // placing this check after its definition in utils.php makes sense if utils.php is included early.
 
-
-
-
-
+function get_band_from_frequency($frequency) {
+    $freq_mhz = (float)$frequency;
+    if ($freq_mhz >= 1.8 && $freq_mhz <= 2.0) return '160m';
+    if ($freq_mhz >= 3.5 && $freq_mhz <= 4.0) return '80m';
+    if ($freq_mhz >= 5.0 && $freq_mhz <= 5.4) return '60m';
+    if ($freq_mhz >= 7.0 && $freq_mhz <= 7.3) return '40m';
+    if ($freq_mhz >= 10.1 && $freq_mhz <= 10.15) return '30m';
+    if ($freq_mhz >= 14.0 && $freq_mhz <= 14.35) return '20m';
+    if ($freq_mhz >= 18.068 && $freq_mhz <= 18.168) return '17m';
+    if ($freq_mhz >= 21.0 && $freq_mhz <= 21.45) return '15m';
+    if ($freq_mhz >= 24.89 && $freq_mhz <= 24.99) return '12m';
+    if ($freq_mhz >= 28.0 && $freq_mhz <= 29.7) return '10m';
+    if ($freq_mhz >= 50.0 && $freq_mhz <= 54.0) return '6m';
+    if ($freq_mhz >= 144.0 && $freq_mhz <= 148.0) return '2m';
+    if ($freq_mhz >= 222.0 && $freq_mhz <= 225.0) return '1.25m';
+    if ($freq_mhz >= 420.0 && $freq_mhz <= 450.0) return '70cm';
+    return null;
+}

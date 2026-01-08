@@ -105,3 +105,15 @@ footer p, footer a {
 }
 
 /* Old .footer styles removed as they are not used and conflict with sticky footer */
+
+/* Fix for dropdown menu text color and background */
+.navbar-nav .dropdown-menu .dropdown-item {
+    color: #34495e !important; /* Dark text color for readability */
+    background-color: #f8f9fa !important; /* Light background */
+}
+
+.navbar-nav .dropdown-menu .dropdown-item:hover,
+.navbar-nav .dropdown-menu .dropdown-item:focus {
+    background-color: #e2e6ea !important; /* Slightly darker background on hover/focus */
+    color: #212529 !important; /* Darker text on hover/focus */
+}

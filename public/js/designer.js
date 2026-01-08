@@ -15,6 +15,8 @@ $(document).ready(function() {
     const textControls = $('#text-controls');
     const fontSizeInput = $('#font-size');
     const fontColorInput = $('#font-color');
+    const fontBoldButton = $('#font-bold');
+    const fontItalicButton = $('#font-italic');
     const removeObjectButton = $('#remove-object');
 
     // Initialize remove button as disabled
@@ -56,7 +58,9 @@ $(document).ready(function() {
                                 top: field.top * logicalHeight,
                                 fontSize: field.fontSize * logicalHeight,
                                 fill: field.fill,
-                                fontFamily: field.fontFamily,
+                                fontFamily: field.fontFamily || 'Arial',
+                                fontWeight: field.fontWeight || 'normal',
+                                fontStyle: field.fontStyle || 'normal',
                                 angle: field.angle,
                                 qsoField: field.qsoField 
                             });
@@ -110,22 +114,31 @@ $(document).ready(function() {
 
     function updateControls(e) {
         if (e.target && e.target.type === 'i-text') {
-            const fontSize = e.target.get('fontSize');
-            // Recalculate font size based on logical height for display
-            const relativeFontSize = fontSize / logicalHeight;
+            const activeObject = e.target;
             
-            // textControls.removeClass('d-none'); // No longer hiding/showing the whole panel
-            fontSizeInput.val(Math.round(fontSize)); 
-            fontColorInput.val(e.target.get('fill'));
-            removeObjectButton.prop('disabled', false); // Enable remove button
+            fontSizeInput.val(Math.round(activeObject.get('fontSize'))); 
+            fontColorInput.val(activeObject.get('fill'));
+            
+            if (activeObject.get('fontWeight') === 'bold') {
+                fontBoldButton.addClass('active');
+            } else {
+                fontBoldButton.removeClass('active');
+            }
+
+            if (activeObject.get('fontStyle') === 'italic') {
+                fontItalicButton.addClass('active');
+            } else {
+                fontItalicButton.removeClass('active');
+            }
         } else {
             hideControls();
         }
     }
 
     function hideControls() {
-        // textControls.addClass('d-none'); // No longer hiding/showing the whole panel
-        removeObjectButton.prop('disabled', true); // Disable remove button
+        fontBoldButton.removeClass('active');
+        fontItalicButton.removeClass('active');
+        // removeObjectButton.prop('disabled', true); // No longer needed, handled inline
     }
     
     $('.add-text').on('click', function() {
@@ -137,9 +150,9 @@ $(document).ready(function() {
         const fontSize = logicalHeight * 0.04; // Default to 4% of image height
         const newText = new fabric.IText(fieldName, {
             left: 50, top: 50, fontSize: fontSize,
-            fill: '#000000', fontFamily: 'Arial', qsoField: fieldName,
-            selectable: true, // Ensure the object can be selected
-            evented: true     // Ensure the object can receive events (like dragging)
+            fill: '#000000', fontFamily: 'Roboto-Regular', qsoField: fieldName,
+            selectable: true,
+            evented: true
         });
         canvas.add(newText);
         canvas.setActiveObject(newText);
@@ -161,12 +174,49 @@ $(document).ready(function() {
         }
     });
 
-    $('#remove-object').on('click', function() {
+    fontBoldButton.on('click', function() {
         const activeObject = canvas.getActiveObject();
-        if (activeObject) { 
-            canvas.remove(activeObject); 
-            canvas.discardActiveObject(); // Clear selection after removing
-            hideControls(); 
+        if (activeObject && activeObject.type === 'i-text') {
+            const isBold = activeObject.get('fontWeight') === 'bold';
+            activeObject.set('fontWeight', isBold ? 'normal' : 'bold');
+            $(this).toggleClass('active');
+            canvas.renderAll();
+        }
+    });
+
+    fontItalicButton.on('click', function() {
+        const activeObject = canvas.getActiveObject();
+        if (activeObject && activeObject.type === 'i-text') {
+            const isItalic = activeObject.get('fontStyle') === 'italic';
+            activeObject.set('fontStyle', isItalic ? 'normal' : 'italic');
+            $(this).toggleClass('active');
+            canvas.renderAll();
+        }
+    });
+
+    // fontFamilySelect.on('change', function() { // Removed
+    //     const activeObject = canvas.getActiveObject();
+    //     if (activeObject && activeObject.type === 'i-text') {
+    //         activeObject.set('fontFamily', $(this).val());
+    //         canvas.renderAll();
+    //     }
+    // });
+
+    // The #remove-object click handler is now inline in designer.php
+    // No need for a jQuery event listener here anymore.
+
+    // Handle Delete/Backspace key press for removing objects
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                // Prevent browser back navigation for Backspace
+                e.preventDefault(); 
+                canvas.remove(activeObject);
+                canvas.discardActiveObject();
+                canvas.renderAll();
+                hideControls(); // Update controls after removal
+            }
         }
     });
 
@@ -183,9 +233,13 @@ $(document).ready(function() {
                     text: obj.text,
                     left: obj.left / logicalWidth,
                     top: obj.top / logicalHeight,
-                    fontSize: obj.fontSize / logicalHeight, // Save as ratio of height
-                    fill: obj.fill, fontFamily: obj.fontFamily,
-                    angle: obj.angle, qsoField: obj.qsoField
+                    fontSize: obj.fontSize / logicalHeight,
+                    fill: obj.fill,
+                    fontFamily: obj.fontFamily,
+                    fontWeight: obj.fontWeight,
+                    fontStyle: obj.fontStyle,
+                    angle: obj.angle,
+                    qsoField: obj.qsoField
                 });
             }
         });

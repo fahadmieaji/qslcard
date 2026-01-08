@@ -14,6 +14,7 @@ $response = ['success' => false, 'message' => 'An unknown error occurred.'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
+    
     $new_username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
     $new_email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
     $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
@@ -28,13 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $qsl_manager = filter_input(INPUT_POST, 'qsl_manager', FILTER_SANITIZE_STRING);
     $grid = filter_input(INPUT_POST, 'grid', FILTER_SANITIZE_STRING);
 
-    if (empty($new_username) || empty($new_email)) {
-        $response['message'] = 'Username and Email cannot be empty.';
+    if (empty($new_username)) {
+        $response['message'] = 'Username cannot be empty.';
         echo json_encode($response);
         exit();
     }
-
-    if (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
+    
+    // Email is optional, but if provided, it must be valid.
+    if (!empty($new_email) && !filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
         $response['message'] = 'Invalid email format.';
         echo json_encode($response);
         exit();
@@ -48,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_current->execute([$user_id]);
         $current_user = $stmt_current->fetch();
 
+
         // Check for duplicate username if changed
         if ($new_username !== $current_user['username']) {
             $stmt_username_check = $pdo->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
@@ -59,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Check for duplicate email if changed
-        if ($new_email !== $current_user['email']) {
+        // Check for duplicate email if changed and not empty
+        if (!empty($new_email) && $new_email !== $current_user['email']) {
             $stmt_email_check = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
             $stmt_email_check->execute([$new_email, $user_id]);
             if ($stmt_email_check->fetch()) {
@@ -71,14 +74,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Update user profile
-        $stmt_update = $pdo->prepare("UPDATE users SET username = ?, email = ?, name = ?, mobile = ?, whatsapp = ?, facebook = ?, website = ?, address = ?, country = ?, postal_address = ?, qsl_info = ?, qsl_manager = ?, grid = ? WHERE id = ?");
-        if ($stmt_update->execute([$new_username, $new_email, $name, $mobile, $whatsapp, $facebook, $website, $address, $country, $postal_address, $qsl_info, $qsl_manager, $grid, $user_id])) {
+        $sql = "UPDATE users SET username = ?, email = ?, name = ?, mobile = ?, whatsapp = ?, facebook = ?, website = ?, address = ?, country = ?, postal_address = ?, qsl_info = ?, qsl_manager = ?, grid = ? WHERE id = ?";
+        $params = [$new_username, $new_email, $name, $mobile, $whatsapp, $facebook, $website, $address, $country, $postal_address, $qsl_info, $qsl_manager, $grid, $user_id];
+        
+        $stmt_update = $pdo->prepare($sql);
+        $execution_result = $stmt_update->execute($params);
+        
+
+        if ($execution_result) {
             // Update session username if it changed
             $_SESSION['username'] = $new_username;
             $response['success'] = true;
             $response['message'] = 'Profile updated successfully!';
+
         } else {
-            $response['message'] = 'Failed to update profile.';
+            $error_info = $stmt_update->errorInfo();
+            $response['message'] = 'Failed to update profile. Error: ' . implode(" ", $error_info);
         }
 
     } catch (PDOException $e) {

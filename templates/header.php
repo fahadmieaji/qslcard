@@ -26,6 +26,10 @@ $site_name = $settings['site_name'] ?? 'QSL Card Manager';
     <!-- Custom CSS -->
             <link rel="stylesheet" href="<?php echo ROOT_URL; ?>/public/css/style.css">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Fabric.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <!-- Lodash.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
 
         </head><body>
 
@@ -60,7 +64,7 @@ $site_name = $settings['site_name'] ?? 'QSL Card Manager';
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                           <?php echo htmlspecialchars($_SESSION['username']); ?>
+                           <?php echo htmlspecialchars($_SESSION['callsign']); ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
                             <li><a class="dropdown-item" href="<?php echo ROOT_URL; ?>/public/designer.php">New Template</a></li>

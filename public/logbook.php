@@ -101,13 +101,16 @@ include_once ROOT_PATH . '/templates/header.php';
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-primary dropdown-toggle generate-qsl-dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-log-id="<?php echo $log['id']; ?>">
-                                            QSL
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><span class="dropdown-item-text">Loading...</span></li>
-                                        </ul>
+                                    <div class="btn-group">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-primary dropdown-toggle generate-qsl-dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-log-id="<?php echo $log['id']; ?>">
+                                                QSL
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><span class="dropdown-item-text">Loading...</span></li>
+                                            </ul>
+                                        </div>
+                                        <button class="btn btn-sm btn-danger delete-log-btn" data-log-id="<?php echo $log['id']; ?>">Delete</button>
                                     </div>
                                 </td>
                             </tr>

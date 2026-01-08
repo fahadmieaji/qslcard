@@ -3,9 +3,9 @@
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'test_s21af');
-define('DB_USER', 'test_s21af');
-define('DB_PASS', '123456');
+define('DB_NAME', 'fahad');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
 // Project configuration
 define('ROOT_PATH', dirname(__DIR__));

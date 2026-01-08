@@ -14,10 +14,19 @@ function printImageOnly(image_url) {
     printWindow.document.close();
 }
 
+// Function to add the S21AF credit to the footer
+function addS21AFCredit() {
+    if ($('#s21af-credit').length === 0) {
+        $('body').append('<div id="s21af-credit" style="position: fixed; bottom: 5px; right: 5px; font-size: 10px; color: #aaa;">Powered by S21AF</div>');
+    }
+}
 
+// Function to periodically check for and re-add the S21AF credit if removed
+function checkS21AFCreditJS() {
+    addS21AFCredit(); // Ensure the credit is present
+}
 
 $(document).ready(function() {
-    console.log("QSL Manager JS loaded.");
 
     // Add the S21AF credit when the document is ready
     addS21AFCredit();
@@ -27,7 +36,6 @@ $(document).ready(function() {
     // A user can easily bypass this by disabling JavaScript or modifying it
     // in their browser's developer tools.
     setInterval(checkS21AFCreditJS, 5000);
-
 
     // Event listener for the print button
     $(document).on('click', '.print-qsl-btn', function() {
@@ -169,5 +177,30 @@ $(document).ready(function() {
                 messageDiv.html('<div class="alert alert-danger">An error occurred: ' + (jqXHR.responseJSON?.message || textStatus) + '</div>');
             }
         });
+    });
+
+    // Handle Log Deletion
+    $(document).on('click', '.delete-log-btn', function() {
+        const logId = $(this).data('log-id');
+        const row = $(this).closest('tr');
+
+        if (confirm('Are you sure you want to delete this log entry?')) {
+            $.ajax({
+                url: 'ajax_delete_log.php',
+                type: 'POST',
+                data: { log_id: logId },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        row.fadeOut(300, function() { $(this).remove(); });
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while deleting the log entry.');
+                }
+            });
+        }
     });
 });

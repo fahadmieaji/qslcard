@@ -123,7 +123,7 @@ include_once ROOT_PATH . '/templates/header.php';
 <div class="container mt-4">
     <div class="py-5 px-4 mb-4 bg-white rounded-3 shadow-lg initial-hidden dashboard-card border-0">
         <div class="container-fluid">
-            <h1 class="display-5 fw-bold mb-3">Welcome back, <span class="text-primary"><?php echo htmlspecialchars($_SESSION['username']); ?></span>!</h1>
+            <h1 class="display-5 fw-bold mb-3">Welcome back, <span class="text-primary"><?php echo htmlspecialchars($_SESSION['callsign']); ?></span>!</h1>
             <p class="fs-5 lead">Your personalized QSL Card Manager dashboard, offering insights into your logging activity.</p>
             <hr class="my-4">
             <p class="col-md-8 fs-5">Dive into your logs, design custom QSL cards, and analyze your amateur radio journey.</p>

@@ -5,6 +5,10 @@ require_once dirname(__DIR__) . '/config/config.php';
 require_once ROOT_PATH . '/src/utils.php';
 require_once ROOT_PATH . '/src/db.php';
 
+if (!extension_loaded('gd')) {
+    die('The GD library is required for image generation but is not installed or enabled.');
+}
+
 secure_session_start();
 require_login();
 
@@ -83,6 +87,21 @@ if ($output_type === 'image') {
         // Convert hex color to RGB
         list($r, $g, $b) = sscanf($field['fill'], "#%02x%02x%02x");
         $color = imagecolorallocate($image, $r, $g, $b);
+
+        $font_file = 'Roboto-Regular.ttf';
+        if (!empty($field['fontWeight']) && $field['fontWeight'] === 'bold' && !empty($field['fontStyle']) && $field['fontStyle'] === 'italic') {
+            $font_file = 'Roboto-BoldItalic.ttf';
+        } elseif (!empty($field['fontWeight']) && $field['fontWeight'] === 'bold') {
+            $font_file = 'Roboto-Bold.ttf';
+        } elseif (!empty($field['fontStyle']) && $field['fontStyle'] === 'italic') {
+            $font_file = 'Roboto-Italic.ttf';
+        }
+        $font_path = ROOT_PATH . '/public/fonts/' . $font_file;
+
+        if (!file_exists($font_path)) {
+            // Fallback to regular if the specific font is not found
+            $font_path = ROOT_PATH . '/public/fonts/Roboto-Regular.ttf';
+        }
 
         // Convert calculated pixel font size to GD points
         $font_size_pt = $fontSizePx * 0.75;
