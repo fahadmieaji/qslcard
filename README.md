@@ -19,9 +19,9 @@ This project is a web application designed for managing and generating QSL cards
 
 ### Prerequisites
 -   Web server (e.g., Apache, Nginx)
--   PHP (ensure required extensions are enabled, version compatible with the application)
+-   PHP 8.0 or more
 -   MySQL or compatible database server
--   Composer (recommended for PHP dependency management, if applicable)
+
 
 ### Setup Steps
 1.  **Clone the repository:**
@@ -30,15 +30,12 @@ This project is a web application designed for managing and generating QSL cards
     cd qslcard
     ```
 2.  **Web Server Configuration:**
-    *   Configure your web server (e.g., Apache Virtual Host) to point its document root to the `public/` directory. This ensures only public-facing files are directly accessible.
+    *   Document root to the `public/` directory. This ensures only public-facing files are directly accessible.
     *   Ensure PHP is correctly configured and enabled for your web server.
 3.  **Database Setup:**
     *   Create a new MySQL database and a dedicated user for the application.
-    *   Update `config/config.php` with your database connection details (host, username, password, database name).
-    *   **Database Schema:** *Please provide the SQL file for the database schema or instructions on how to initialize the database (e.g., if `public/install.php` handles it automatically).*
-4.  **PHP Dependencies (if applicable):**
-    *   If the project uses Composer, run `composer install` in the project root to install dependencies. (Please confirm if a `composer.json` file exists or is needed).
-5.  **Access the application:**
+    *   Get database connection details (host, username, password, database name).
+4.  **Access the application:**
     *   Open your web browser and navigate to the configured domain or IP address.
     *   Follow any on-screen installation instructions if presented (e.g., by visiting `http://your-domain/install.php` initially).
 
