@@ -206,7 +206,7 @@ include_once ROOT_PATH . '/templates/header.php';
                         <h4 class="mt-4">Application Configuration</h4>
                         <div class="mb-3">
                             <label for="root_url" class="form-label">Base URL</label>
-                            <input type="text" class="form-control" id="root_url" name="root_url" value="<?php echo str_replace('/public/install.php', '', $_SERVER['PHP_SELF']); ?>" required>
+                            <input type="text" class="form-control" id="root_url" name="root_url" value="<?php echo str_replace('/public/install.php', '', $_SERVER['PHP_SELF']); ?>">
                             <div class="form-text">This is the base path of your application. It is auto-detected, but you can change it if it's incorrect.</div>
                         </div>
 
