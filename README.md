@@ -30,7 +30,6 @@ This project is a web application designed for managing and generating QSL cards
     cd qslcard
     ```
 2.  **Web Server Configuration:**
-    *   Document root to the `public/` directory. This ensures only public-facing files are directly accessible.
     *   Ensure PHP is correctly configured and enabled for your web server.
 3.  **Database Setup:**
     *   Create a new MySQL database and a dedicated user for the application.
