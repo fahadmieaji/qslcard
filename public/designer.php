@@ -38,6 +38,9 @@ include_once ROOT_PATH . '/templates/header.php';
     // Pass PHP data to JavaScript
     const templateToLoad = <?php echo $template_data_json; ?>;
 </script>
+<script>
+    const ROOT_URL = "<?php echo ROOT_URL; ?>";
+</script>
 
 <div class="container-fluid">
     <div class="row">
@@ -83,15 +86,14 @@ include_once ROOT_PATH . '/templates/header.php';
                         <button class="btn btn-secondary add-text" data-text="MODE">Add Mode</button>
                         <button class="btn btn-secondary add-text" data-text="RST_SENT">Add RST (S)</button>
                         <button class="btn btn-secondary add-text" data-text="RST_RCVD">Add RST (R)</button>
-                        <button class="btn btn-secondary add-text" data-text="NOTES">Add Notes</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Canvas Area -->
+        <!-- Canvas Area and Edit Text Controls -->
         <div class="col-lg-6">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm mb-3"> <!-- Added mb-3 here for spacing from controls below -->
                 <div class="card-body">
                     <p>Upload a background image to begin. The canvas will resize to match your image dimensions.</p>
                     <div class="canvas-wrapper">
@@ -99,31 +101,54 @@ include_once ROOT_PATH . '/templates/header.php';
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Right Control Panel for Text Editing -->
-        <div class="col-lg-3">
+            <!-- Edit Text Controls (moved here) -->
             <div class="card shadow-sm mb-3" id="text-controls">
                 <div class="card-header">
                     <h5 class="mb-0">Edit Text</h5>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="font-size" class="form-label">Font Size</label>
-                        <input type="number" id="font-size" class="form-control" value="20" min="1">
-                    </div>
-                    <div class="mb-3">
-                        <label for="font-color" class="form-label">Color</label>
-                        <input type="color" id="font-color" class="form-control form-control-color" value="#000000">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Style</label>
-                        <div class="btn-group w-100">
-                            <button type="button" class="btn btn-outline-secondary" id="font-bold"><b>B</b></button>
-                            <button type="button" class="btn btn-outline-secondary" id="font-italic"><i>I</i></button>
-                        </div>
-                    </div>
+                                <div class="card-body">
+                                    <div class="row g-2"> <!-- g-2 for gutter spacing -->
+                                        <div class="col-md-4">
+                                            <label for="font-size" class="form-label">Font Size</label>
+                                            <input type="number" id="font-size" class="form-control form-control-sm" value="20" min="1">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="font-color" class="form-label">Color</label>
+                                            <input type="color" id="font-color" class="form-control form-control-sm form-control-color" value="#000000">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Style</label>
+                                            <div class="btn-group w-100">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" id="font-bold"><b>B</b></button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" id="font-italic"><i>I</i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+            </div>
+        </div>
 
+        <!-- Right Control Panel for User Fields -->
+        <div class="col-lg-3">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Add User Fields</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-secondary add-user-text" data-field="CALLSIGN">Add Callsign</button>
+                        <button class="btn btn-secondary add-user-text" data-field="ADDRESS">Add Address</button>
+                        <button class="btn btn-secondary add-user-text" data-field="GRID">Add Grid</button>
+                        <button class="btn btn-secondary add-user-text" data-field="EMAIL">Add Email</button>
+                        <button class="btn btn-secondary add-user-text" data-field="MOBILE">Add Mobile</button>
+                        <button class="btn btn-secondary add-user-text" data-field="WHATSAPP">Add WhatsApp</button>
+                        <button class="btn btn-secondary add-user-text" data-field="FACEBOOK">Add Facebook</button>
+                        <button class="btn btn-secondary add-user-text" data-field="WEBSITE">Add Website</button>
+                        <button class="btn btn-secondary add-user-text" data-field="COUNTRY">Add Country</button>
+                        <button class="btn btn-secondary add-user-text" data-field="QSL_INFO">Add QSL Info</button>
+
+                    </div>
                 </div>
             </div>
         </div>

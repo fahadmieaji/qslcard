@@ -30,18 +30,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     require_once ROOT_PATH . '/src/utils.php';
     require_once ROOT_PATH . '/src/db.php';
     
-    $action = $_POST['action'];
+    
+    $action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_STRING);
 
-    // --- Get data from POST ---
-    $db_host = $_POST['db_host'] ?? '';
-    $db_port = $_POST['db_port'] ?? '3306';
-    $db_name = $_POST['db_name'] ?? '';
-    $db_user = $_POST['db_user'] ?? '';
-    $db_pass = $_POST['db_pass'] ?? '';
-    $admin_username = $_POST['admin_username'] ?? '';
-    $admin_password = $_POST['admin_password'] ?? '';
-    $admin_callsign = $_POST['admin_callsign'] ?? '';
-    $root_url = $_POST['root_url'] ?? '';
+    // --- Sanitize and Validate data from POST ---
+    $db_host = filter_input(INPUT_POST, 'db_host', FILTER_SANITIZE_STRING) ?? '';
+    $db_port = filter_input(INPUT_POST, 'db_port', FILTER_VALIDATE_INT) ?? 3306;
+    $db_name = filter_input(INPUT_POST, 'db_name', FILTER_SANITIZE_STRING) ?? '';
+    $db_user = filter_input(INPUT_POST, 'db_user', FILTER_SANITIZE_STRING) ?? '';
+    $db_pass = $_POST['db_pass'] ?? ''; // Password should not be sanitized with FILTER_SANITIZE_STRING
+    $admin_username = filter_input(INPUT_POST, 'admin_username', FILTER_SANITIZE_STRING) ?? '';
+    $admin_password_raw = $_POST['admin_password'] ?? ''; // Raw password for hashing
+    $admin_callsign = filter_input(INPUT_POST, 'admin_callsign', FILTER_SANITIZE_STRING) ?? '';
+    $root_url = filter_input(INPUT_POST, 'root_url', FILTER_SANITIZE_URL) ?? '';
+
+
+    // Validate db_name strictly
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $db_name) && ($action === 'test_db' || $action === 'create_tables' || $action === 'create_user')) {
+        send_json_response('error', 'Invalid database name.', 0, '', 'Database name can only contain letters, numbers, and underscores.');
+    }
+
+    // Basic validation for other sensitive fields if needed
+    if (empty($db_host)) {
+        send_json_response('error', 'Database host is required.', 0, '', 'Database host is required.');
+    }
+    if (empty($db_user)) {
+        send_json_response('error', 'Database user is required.', 0, '', 'Database user is required.');
+    }
+    if (empty($admin_username)) {
+        send_json_response('error', 'Admin username is required.', 0, '', 'Admin username is required.');
+    }
+    if (empty($admin_password_raw)) {
+        send_json_response('error', 'Admin password is required.', 0, '', 'Admin password is required.');
+    }
+    if (strlen($admin_password_raw) < 8) { // Basic password strength
+        send_json_response('error', 'Admin password must be at least 8 characters long.', 0, '', 'Admin password must be at least 8 characters long.');
+    }
+    if (empty($admin_callsign)) {
+        send_json_response('error', 'Admin callsign is required.', 0, '', 'Admin callsign is required.');
+    }
+
+    // Hash the password only if valid
+    $hashed_password = password_hash($admin_password_raw, PASSWORD_DEFAULT);
 
     switch ($action) {
         case 'install':
@@ -49,9 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             if (version_compare(PHP_VERSION, '8.0.0', '<') || !extension_loaded('pdo_mysql') || !extension_loaded('gd')) {
                 send_json_response('error', 'System requirements not met.', 0, '', 'PHP version or extensions are not correct.');
             }
-            if (empty($db_host) || empty($db_name) || empty($db_user) || empty($admin_username) || empty($admin_password) || empty($admin_callsign)) {
-                send_json_response('error', 'All form fields are required.', 0, '', 'All form fields are required.');
-            }
+            // All other form field validations are handled individually above
             send_json_response('success', 'Starting installation...', 10, 'update_config');
             break;
 
@@ -105,7 +133,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $pdo = new PDO("mysql:host=$db_host;port=$db_port;dbname=$db_name", $db_user, $db_pass);
                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 
-                $hashed_password = password_hash($admin_password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO users (username, password, callsign) VALUES (?, ?, ?)");
                 $stmt->execute([$admin_username, $hashed_password, $admin_callsign]);
 

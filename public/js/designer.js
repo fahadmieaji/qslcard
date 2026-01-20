@@ -1,5 +1,24 @@
 $(document).ready(function() {
     const canvasWrapper = $('.canvas-wrapper');
+    let userProfileData = {}; // To store fetched user profile data
+
+    // Fetch user profile data on page load
+    $.ajax({
+        url: 'ajax_get_user_profile.php',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                userProfileData = response.data;
+                console.log('User profile data loaded:', userProfileData);
+            } else {
+                console.error('Failed to load user profile data:', response.message);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error('AJAX error fetching user profile:', textStatus, errorThrown);
+        }
+    });
     
     // --- Canvas Initialization ---
     const canvas = new fabric.Canvas('qsl-canvas', {
@@ -53,18 +72,38 @@ $(document).ready(function() {
                     fitCanvasToContainer();
                     if (relativeFields) {
                         relativeFields.forEach(field => {
-                            const newText = new fabric.IText(field.text, {
-                                left: field.left * logicalWidth,
-                                top: field.top * logicalHeight,
-                                fontSize: field.fontSize * logicalHeight,
-                                fill: field.fill,
-                                fontFamily: field.fontFamily || 'Arial',
-                                fontWeight: field.fontWeight || 'normal',
-                                fontStyle: field.fontStyle || 'normal',
-                                angle: field.angle,
-                                qsoField: field.qsoField 
-                            });
-                            canvas.add(newText);
+                            if (field.type === 'i-text') {
+                                const newText = new fabric.IText(field.text, {
+                                    left: field.left * logicalWidth,
+                                    top: field.top * logicalHeight,
+                                    fontSize: field.fontSize * logicalHeight,
+                                    fill: field.fill,
+                                    fontFamily: field.fontFamily || 'Arial',
+                                    fontWeight: field.fontWeight || 'normal',
+                                    fontStyle: field.fontStyle || 'normal',
+                                    angle: field.angle,
+                                    qsoField: field.qsoField,
+                                    userField: field.userField
+                                });
+                                canvas.add(newText);
+                            } else if (field.type === 'image' && field.userField === 'profile_picture') {
+                                // Load image from source and apply saved properties
+                                // Ensure userProfileData is available for loading the correct image URL
+                                // If the saved 'src' is a relative path, we need to construct the full URL
+                                // We are using field.src directly which should be the full URL already from the saving logic
+                                
+                                fabric.Image.fromURL(field.src, function(img) {
+                                    img.set({
+                                        left: field.left * logicalWidth,
+                                        top: field.top * logicalHeight,
+                                        scaleX: field.scaleX,
+                                        scaleY: field.scaleY,
+                                        userField: field.userField
+                                    });
+                                    canvas.add(img);
+                                    canvas.renderAll(); // Re-render after image is added
+                                }, { crossOrigin: 'anonymous' });
+                            }
                         });
                     }
                     canvas.renderAll();
@@ -158,6 +197,28 @@ $(document).ready(function() {
         canvas.setActiveObject(newText);
     });
 
+    // --- Add User Fields to Canvas ---
+    $('.add-user-text').on('click', function() {
+        if(logicalWidth === 0) {
+            alert('Please upload a background image first.');
+            return;
+        }
+        const fieldKey = $(this).data('field').toLowerCase(); // e.g., 'callsign', 'email'
+        const displayValue = userProfileData[fieldKey] || `[${fieldKey.toUpperCase()}]`; // Default text if data not available
+        
+        const fontSize = logicalHeight * 0.04; // Default to 4% of image height
+        const newText = new fabric.IText(displayValue, {
+            left: 50, top: 50, fontSize: fontSize,
+            fill: '#000000', fontFamily: 'Roboto-Regular', userField: fieldKey, // Custom property to identify user fields
+            selectable: true,
+            evented: true
+        });
+        canvas.add(newText);
+        canvas.setActiveObject(newText);
+    });
+
+
+
     fontSizeInput.on('input', function() {
         const activeObject = canvas.getActiveObject();
         if (activeObject && activeObject.type === 'i-text') {
@@ -230,6 +291,7 @@ $(document).ready(function() {
         canvas.getObjects().forEach(obj => {
             if (obj.type === 'i-text') {
                 objectsToSave.push({
+                    type: 'i-text', // Add type for identification
                     text: obj.text,
                     left: obj.left / logicalWidth,
                     top: obj.top / logicalHeight,
@@ -239,12 +301,23 @@ $(document).ready(function() {
                     fontWeight: obj.fontWeight,
                     fontStyle: obj.fontStyle,
                     angle: obj.angle,
-                    qsoField: obj.qsoField
+                    qsoField: obj.qsoField,
+                    userField: obj.userField // Save user field property
+                });
+            } else if (obj.type === 'image' && obj.userField === 'profile_picture') {
+                objectsToSave.push({
+                    type: 'image', // Add type for identification
+                    src: obj.getSrc(), // Save image source
+                    left: obj.left / logicalWidth,
+                    top: obj.top / logicalHeight,
+                    scaleX: obj.scaleX,
+                    scaleY: obj.scaleY,
+                    userField: obj.userField
                 });
             }
         });
 
-        if (objectsToSave.length === 0) { alert('Please add at least one QSO field.'); return; }
+        if (objectsToSave.length === 0) { alert('Please add at least one QSO or User field.'); return; } // Updated alert
 
         const ajaxData = {
             template_id: $('#template-id').val(),

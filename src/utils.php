@@ -126,7 +126,7 @@ function get_settings() {
 // Ensure session is active before trying to set session variables
 // This assumes secure_session_start() is called before utils.php is fully processed
 // in most relevant page contexts. A more robust solution might integrate this
-// directly into secure_session_start or require explicit call after session is active.
+// directly into secure_session_start() or require explicit call after session is active.
 // For now, we'll assume a session is available when utils.php is included.
 
 // Temporarily, we'll call it here. For a cleaner approach, this might be called

@@ -33,6 +33,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     installForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        const adminPassword = document.getElementById('admin_password').value;
+        if (adminPassword.length < 8) {
+            alert('Admin password must be at least 8 characters long.');
+            return;
+        }
+
         showStep(2); // Show progress step
 
         const formData = new FormData(installForm);

@@ -38,6 +38,29 @@ if (!$log || !$template) {
     die('Invalid log or template ID, or you do not have permission to access it.');
 }
 
+// Fetch user profile data
+$user_profile_stmt = $pdo->prepare(
+    'SELECT callsign, email, mobile, whatsapp, facebook, website, address, country, postal_address, qsl_info, qsl_manager, grid, profile_picture_url
+     FROM users
+     WHERE id = ?'
+);
+$user_profile_stmt->execute([$user_id]);
+$user_profile = $user_profile_stmt->fetch(PDO::FETCH_ASSOC);
+
+// Pre-process user profile data for easier access
+$user_data = [];
+if ($user_profile) {
+    foreach ($user_profile as $key => $value) {
+        $user_data[strtolower($key)] = $value;
+    }
+    // Handle full URL for profile picture
+    if (!empty($user_data['profile_picture_url'])) {
+        $user_data['profile_picture_full_url'] = ROOT_URL . '/' . $user_data['profile_picture_url'];
+    } else {
+        $user_data['profile_picture_full_url'] = '';
+    }
+}
+
 // --- Image Generation Logic ---
 if ($output_type === 'image') {
     $font_path = ROOT_PATH . '/public/fonts/Roboto-Regular.ttf';
@@ -56,8 +79,8 @@ if ($output_type === 'image') {
     
     // Load background image and get its dimensions
     $bg_image_path = ROOT_PATH . str_replace(ROOT_URL, '', $template['background_image']);
-    list($width, $height, $image_type) = getimagesize($bg_image_path);
-    if (!$width || !$height) { die('Could not get image dimensions.'); }
+    list($width, $height, $image_type) = @getimagesize($bg_image_path);
+    if (!$width || !$height) { die('Could not get image dimensions for background from: ' . $bg_image_path); }
 
     // Create image resource from file
     $image = null;
@@ -65,55 +88,66 @@ if ($output_type === 'image') {
         case IMAGETYPE_JPEG: $image = imagecreatefromjpeg($bg_image_path); break;
         case IMAGETYPE_PNG: $image = imagecreatefrompng($bg_image_path); break;
         case IMAGETYPE_GIF: $image = imagecreatefromgif($bg_image_path); break;
-        default: die('Unsupported image type.');
+        default: die('Unsupported background image type for: ' . $bg_image_path);
     }
-    if ($image === false) { die('Failed to create image from file.'); }
+    if ($image === false) { die('Failed to create background image from file: ' . $bg_image_path); }
     
     // Process and draw each text field using relative coordinates
     $fields = json_decode($template['fields'], true);
 
     foreach ($fields as $field) {
-        // Look up the log data using a case-insensitive key
-        $field_key = strtolower($field['qsoField']);
-        $text = $log[$field_key] ?? $field['text'];
-        
-        // --- Calculate absolute values from relative ---
-        $left = (float)($field['left'] ?? 0) * $width;
-        $top = (float)($field['top'] ?? 0) * $height;
-        $angle = (float)($field['angle'] ?? 0);
-        // Font size is relative to the image height
-        $fontSizePx = (float)($field['fontSize'] ?? 0.05) * $height;
+        $object_type = $field['type'] ?? 'i-text'; // Default to i-text for older templates
 
-        // Convert hex color to RGB
-        list($r, $g, $b) = sscanf($field['fill'], "#%02x%02x%02x");
-        $color = imagecolorallocate($image, $r, $g, $b);
+        if ($object_type === 'i-text') {
+            $text = '';
+            if (isset($field['qsoField'])) {
+                $field_key = strtolower($field['qsoField']);
+                $text = $log[$field_key] ?? $field['text']; // Use stored text as fallback
+            } elseif (isset($field['userField'])) {
+                $field_key = strtolower($field['userField']);
+                $text = $user_data[$field_key] ?? $field['text']; // Use stored text as fallback
+            } else {
+                $text = $field['text']; // Just raw text if no field type is set (e.g., from old templates)
+            }
+            
+            // --- Calculate absolute values from relative ---
+            $left = (float)($field['left'] ?? 0) * $width;
+            $top = (float)($field['top'] ?? 0) * $height;
+            $angle = (float)($field['angle'] ?? 0);
+            // Font size is relative to the image height
+            $fontSizePx = (float)($field['fontSize'] ?? 0.05) * $height;
 
-        $font_file = 'Roboto-Regular.ttf';
-        if (!empty($field['fontWeight']) && $field['fontWeight'] === 'bold' && !empty($field['fontStyle']) && $field['fontStyle'] === 'italic') {
-            $font_file = 'Roboto-BoldItalic.ttf';
-        } elseif (!empty($field['fontWeight']) && $field['fontWeight'] === 'bold') {
-            $font_file = 'Roboto-Bold.ttf';
-        } elseif (!empty($field['fontStyle']) && $field['fontStyle'] === 'italic') {
-            $font_file = 'Roboto-Italic.ttf';
+            // Convert hex color to RGB
+            list($r, $g, $b) = sscanf($field['fill'], "#%02x%02x%02x");
+            $color = imagecolorallocate($image, $r, $g, $b);
+
+            $font_file = 'Roboto-Regular.ttf';
+            if (!empty($field['fontWeight']) && $field['fontWeight'] === 'bold' && !empty($field['fontStyle']) && $field['fontStyle'] === 'italic') {
+                $font_file = 'Roboto-BoldItalic.ttf';
+            } elseif (!empty($field['fontWeight']) && $field['fontWeight'] === 'bold') {
+                $font_file = 'Roboto-Bold.ttf';
+            } elseif (!empty($field['fontStyle']) && $field['fontStyle'] === 'italic') {
+                $font_file = 'Roboto-Italic.ttf';
+            }
+            $font_path = ROOT_PATH . '/public/fonts/' . $font_file;
+
+            if (!file_exists($font_path)) {
+                // Fallback to regular if the specific font is not found
+                $font_path = ROOT_PATH . '/public/fonts/Roboto-Regular.ttf';
+            }
+
+            // Convert calculated pixel font size to GD points
+            $font_size_pt = $fontSizePx * 0.75;
+            
+            // Get bounding box to calculate baseline offset
+            $bbox = imagettfbbox($font_size_pt, -$angle, $font_path, $text);
+            $y_offset = abs($bbox[7]);
+            
+            $final_y = $top + $y_offset;
+
+            // Add the text to the image with the accurately calculated absolute position
+            imagettftext($image, $font_size_pt, -$angle, $left, $final_y, $color, $font_path, $text);
         }
-        $font_path = ROOT_PATH . '/public/fonts/' . $font_file;
-
-        if (!file_exists($font_path)) {
-            // Fallback to regular if the specific font is not found
-            $font_path = ROOT_PATH . '/public/fonts/Roboto-Regular.ttf';
-        }
-
-        // Convert calculated pixel font size to GD points
-        $font_size_pt = $fontSizePx * 0.75;
-        
-        // Get bounding box to calculate baseline offset
-        $bbox = imagettfbbox($font_size_pt, -$angle, $font_path, $text);
-        $y_offset = abs($bbox[7]);
-        
-        $final_y = $top + $y_offset;
-
-        // Add the text to the image with the accurately calculated absolute position
-        imagettftext($image, $font_size_pt, -$angle, $left, $final_y, $color, $font_path, $text);
     }
     
     // Output the final image
